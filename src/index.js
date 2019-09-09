@@ -13,15 +13,6 @@ function Square(props){
 }
 
 class Board extends React.Component {
-    constructor(props) {
-        //Em JavaScript, sempre precisa chamar super ao definir o construtor de uma subclasse
-        super(props);
-        this.state = {
-            squares: Array(9).fill(null),
-            xIsNext: true,
-        };
-    }
-
     handleClick(i) {
         const squares = this.state.squares.slice();
         if (calculateWinner(squares) || squares[i]) {
@@ -37,58 +28,73 @@ class Board extends React.Component {
     renderSquare(i) {
       return (
           <Square
-              value={this.state.squares[i]}
-              onClick={() => this.handleClick(i)}
+              value={this.props.squares[i]}
+              onClick={() => this.props.onClick(i)}
           />
       );
   }
 
     render() {
-        const winner = calculateWinner(this.state.squares);
+        return (
+            <div>
+                <div className="board-row">
+                    {this.renderSquare(0)}
+                    {this.renderSquare(1)}
+                    {this.renderSquare(2)}
+                </div>
+                <div className="board-row">
+                    {this.renderSquare(3)}
+                    {this.renderSquare(4)}
+                    {this.renderSquare(5)}
+                </div>
+                <div className="board-row">
+                    {this.renderSquare(6)}
+                    {this.renderSquare(7)}
+                    {this.renderSquare(8)}
+                </div>
+            </div>
+        );
+    }
+}
+
+class Game extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            history: [{
+                squares: Array(9).fill(null),
+            }],
+            xIsNext: true,
+        };
+    }
+    
+    render() {
+        const history = this.state.history;
+        const current = history[history.length - 1];
+        const winner = calculateWinner(current.squares);
+
         let status;
         if (winner) {
             status = 'Winner: ' + winner;
         } else {
             status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
-        }    
+        }
 
-    return (
-      <div>
-        <div className="status">{status}</div>
-        <div className="board-row">
-          {this.renderSquare(0)}
-          {this.renderSquare(1)}
-          {this.renderSquare(2)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(3)}
-          {this.renderSquare(4)}
-          {this.renderSquare(5)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(6)}
-          {this.renderSquare(7)}
-          {this.renderSquare(8)}
-        </div>
-      </div>
-    );
-  }
-}
-
-class Game extends React.Component {
-  render() {
-    return (
-      <div className="game">
-        <div className="game-board">
-          <Board />
-        </div>
-        <div className="game-info">
-          <div>{/* status */}</div>
-          <ol>{/* TODO */}</ol>
-        </div>
-      </div>
-    );
-  }
+        return (
+            <div className="game">
+                <div className="game-board">
+                    <Board
+                        squares={current.squares}
+                        onClick={(i) => this.handleClick(i)}
+                    />
+                </div>
+                <div className="game-info">
+                    <div>{status}</div>
+                    <ol>{/* TODO */}</ol>
+                </div>
+            </div>
+        );
+    }
 }
 
 // ========================================
@@ -117,3 +123,30 @@ function calculateWinner(squares) {
     }
     return null;
 }
+
+history = [
+    // Antes da primeira jogada
+    {
+        squares: [
+            null, null, null,
+            null, null, null,
+            null, null, null,
+        ]
+    },
+    // depois da primeira jogada
+    {
+        squares: [
+            null, null, null,
+            null, 'X', null,
+            null, null, null,
+        ]
+    },
+    // Depois da segunda jogada
+    {
+        squares: [
+            null, null, null,
+            null, 'X', null,
+            null, null, 'O',
+        ]
+    },
+]
